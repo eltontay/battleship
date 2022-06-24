@@ -3,12 +3,12 @@ import Data.List (permutations)
 
 
 type Coord = (Int, Int)
-type Battlebattleship = [Coord]
+type Battleship = [Coord]
 type Board = [[Bool]]
 type Player = String
 
 
-board = 10
+boardSize = 10
 minBattleshipLength = 2
 maxBattleshipLength = 5
 
@@ -16,7 +16,7 @@ maxBattleshipLength = 5
 
 -- Initialize the 10x10 board
 initialiseBoard :: Board
-initialiseBoard = replicate board (replicate board False)
+initialiseBoard = replicate boardSize (replicate boardSize False)
 
 -- Replace num-th element in a list
 replace :: Int -> [a] -> a -> [a]
@@ -44,8 +44,8 @@ convertCoord _ = (-1, -1)
 checkCoord :: Coord -> Bool
 checkCoord coord = and [  fst coord >= 1,
                           snd coord >= 1,
-                          fst coord <= board,
-                          snd coord <= board
+                          fst coord <= boardSize,
+                          snd coord <= boardSize
                         ]
 
 -- Mark a cell on the board as shot
@@ -53,24 +53,24 @@ markBlast :: Board -> Int -> Int -> Board
 markBlast board x y = replace x board (replace y (select x board) True)
 
 -- Convert the board into a printable string
-convertBoard :: Board -> [Battlebattleship] -> Coord -> String
+convertBoard :: Board -> [Battleship] -> Coord -> String
 convertBoard board battleships coord
-        | fst coord <= board && snd coord <= board = if select (fst coord) (select (snd coord) board) then
+        | fst coord <= boardSize && snd coord <= boardSize = if select (fst coord) (select (snd coord) board) then
           if or [coord == coord | battleship <- battleships, coord <- battleship] then 'o' : convertBoard board battleships (fst coord + 1, snd coord)
           else 'x' : convertBoard board battleships (fst coord + 1, snd coord)
           else ' ' : convertBoard board battleships (fst coord + 1, snd coord)
-        | snd coord <= board = "H\nH" ++ convertBoard board battleships (1, snd coord + 1)
+        | snd coord <= boardSize = "H\nH" ++ convertBoard board battleships (1, snd coord + 1)
         | otherwise = []
 
 -- Output the board in the terminal
-printBoard :: String -> Board -> [Battlebattleship] -> IO ()
+printBoard :: String -> Board -> [Battleship] -> IO ()
 printBoard playerName board battleships = do
                                       putStrLn (playerName ++ "'s board:")
-                                      putStrLn (replicate (board+2) 'H' ++ "\nH" ++ convertBoard board battleships (1, 1) ++ replicate (board+1) 'H')
+                                      putStrLn (replicate (boardSize+2) 'H' ++ "\nH" ++ convertBoard board battleships (1, 1) ++ replicate (boardSize+1) 'H')
                                       putStrLn ""
 
 -- Remove destroyed battleships
-removeDestroyedBattleships :: [Battlebattleship] -> [Battlebattleship]
+removeDestroyedBattleships :: [Battleship] -> [Battleship]
 removeDestroyedBattleships [] = []
 removeDestroyedBattleships (x:xs) | null x    = removeDestroyedBattleships xs
                             | otherwise = x : removeDestroyedBattleships xs
@@ -85,7 +85,7 @@ removeDestroyedBattleships (x:xs) | null x    = removeDestroyedBattleships xs
 --    Boolean Tuple that indicates if the shot was a miss or hit.
 --    Destroyed Battleship returned as empty list
 --
-checkDestroyedBattleship :: Board -> Battlebattleship -> Coord -> (Battlebattleship, Bool)
+checkDestroyedBattleship :: Board -> Battleship -> Coord -> (Battleship, Bool)
 checkDestroyedBattleship board battleship coord = if not (or [coord == coord | coord <- battleship]) then do
                                         (battleship, False)    -- Miss
                                       else do
@@ -104,7 +104,7 @@ checkDestroyedBattleship board battleship coord = if not (or [coord == coord | c
 -- Output:
 --    Tuple with the updated enemyBoard, enemyBattleships and a boolean to indicate a hit or miss
 --
-blast :: (Board, [Battlebattleship]) -> Coord -> (Board, [Battlebattleship], Bool)
+blast :: (Board, [Battleship]) -> Coord -> (Board, [Battleship], Bool)
 blast (enemyBoard, enemyBattleships) coord = (markBlast enemyBoard (snd coord) (fst coord),
                                             removeDestroyedBattleships [fst (checkDestroyedBattleship enemyBoard battleship coord) | battleship <- enemyBattleships],
                                             or [snd (checkDestroyedBattleship enemyBoard battleship coord) | battleship <- enemyBattleships])
@@ -120,7 +120,7 @@ blast (enemyBoard, enemyBattleships) coord = (markBlast enemyBoard (snd coord) (
 -- Output:
 --    Tuple containing the updated board and battleships of the opponent
 --
-blastWithEveryBattleship :: (Board, [Battlebattleship]) -> [Battlebattleship] -> IO (Board, [Battlebattleship])
+blastWithEveryBattleship :: (Board, [Battleship]) -> [Battleship] -> IO (Board, [Battleship])
 blastWithEveryBattleship (enemyBoard, enemyBattleships) [] = return (enemyBoard, enemyBattleships)
 blastWithEveryBattleship (enemyBoard, enemyBattleships) ourBattleships = do
                                                         putStrLn ("Enter the coords to blast shot (" ++ show (length ourBattleships) ++ " shots left)")
@@ -154,7 +154,7 @@ inputNames = do
                return [name1, name2]
 
 -- Input one battleship with a given length
-inputBattleship :: [Battlebattleship] -> Int -> IO Battlebattleship
+inputBattleship :: [Battleship] -> Int -> IO Battleship
 inputBattleship placedBattleships len = do
                               putStrLn ("Enter battleship coords of length " ++ show len)
                               string <- getLine
@@ -163,7 +163,7 @@ inputBattleship placedBattleships len = do
                               return coords
 
 -- Input all the battleships for a player
-inputBattleships :: Int -> [Battlebattleship] -> IO [Battlebattleship]
+inputBattleships :: Int -> [Battleship] -> IO [Battleship]
 inputBattleships battleshipSize placedBattleships = if battleshipSize <= maxBattleshipLength then
                                       do
                                         battleship <- inputBattleship placedBattleships battleshipSize
@@ -182,7 +182,7 @@ inputBattleships battleshipSize placedBattleships = if battleshipSize <= maxBatt
 --
 -- The first element in the lists, are from the player whose turn it currently is
 --
-startGame :: [String] -> [Board] -> [[Battlebattleship]] -> IO ()
+startGame :: [String] -> [Board] -> [[Battleship]] -> IO ()
 startGame names boards battleships = do
                             putStrLn ("\num" ++ head names ++ "'s turn")
                             printBoard (last names) (last boards) (last battleships)
