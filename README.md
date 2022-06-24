@@ -53,3 +53,10 @@ John - Player 2
 (4,9)
 (5,9)
 (6,9)
+
+# Run
+
+'''
+cabal build
+cabal run
+'''
