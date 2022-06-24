@@ -2,9 +2,7 @@
 
 ## Rules
 
-```
 https://www.hasbro.com/common/instruct/battleship.pdf
-```
 
 1. 10x10 Board
 2. Two players
@@ -57,7 +55,5 @@ John - Player 2
 
 # Run
 
-'''
 cabal build
 cabal run
-'''
