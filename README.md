@@ -14,12 +14,13 @@ https://www.hasbro.com/common/instruct/battleship.pdf
    - Length 4
    - Length 5
      Each ship are to be arranged either horizontally or vertically
-4. Goal is to sink the opponent's battleship
-5. Each player take their turn to call the coordinates
-6. After each turn, coordinates will be printed out and announce if opponent ship is occupied by that coordinate.
-7. When a ship is sunk, "Player X ship is sunk" will be printed out.
-8. Game ends when all battleship are sunk.
-9. Exception handling
+4. Number of blasts available are dependent on the number of battleships
+5. Goal is to sink the opponent's battleship
+6. Each player take their turn to call the coordinates
+7. After each turn, coordinates will be printed out and announce if opponent ship is occupied by that coordinate.
+8. When a ship is sunk, "Player X ship is sunk" will be printed out.
+9. Game ends when all battleship are sunk.
+10. Exception handling
 
 ## Example Input
 
