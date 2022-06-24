@@ -1,5 +1,5 @@
-import Data.Char (ord)
 import Data.List (permutations)
+import Data.Char (ord)
 
 
 type Coord = (Int, Int)
@@ -56,7 +56,7 @@ markBlast board x y = replace x board (replace y (select x board) True)
 convertBoard :: Board -> [Battleship] -> Coord -> String
 convertBoard board battleships coord
         | fst coord <= boardSize && snd coord <= boardSize = if select (fst coord) (select (snd coord) board) then
-          if or [coord == coord | battleship <- battleships, coord <- battleship] then 'o' : convertBoard board battleships (fst coord + 1, snd coord)
+          if or [coord == coordinate | battleship <- battleships, coordinate <- battleship] then 'o' : convertBoard board battleships (fst coord + 1, snd coord)
           else 'x' : convertBoard board battleships (fst coord + 1, snd coord)
           else ' ' : convertBoard board battleships (fst coord + 1, snd coord)
         | snd coord <= boardSize = "H\nH" ++ convertBoard board battleships (1, snd coord + 1)
@@ -86,10 +86,10 @@ removeDestroyedBattleships (x:xs) | null x    = removeDestroyedBattleships xs
 --    Destroyed Battleship returned as empty list
 --
 checkDestroyedBattleship :: Board -> Battleship -> Coord -> (Battleship, Bool)
-checkDestroyedBattleship board battleship coord = if not (or [coord == coord | coord <- battleship]) then do
+checkDestroyedBattleship board battleship coord = if not (or [coord == coordinate | coordinate <- battleship]) then do
                                         (battleship, False)    -- Miss
                                       else do
-                                        if not (and [select (fst coord) (select (snd coord) board) | coord <- battleship, coord /= coord]) then
+                                        if not (and [select (fst coord) (select (snd coord) board) | coordinate <- battleship, coordinate /= coord]) then
                                             (battleship, True) -- Hit, but not sunk
                                         else
                                             ([], True)   -- Hit and sunk
@@ -184,12 +184,12 @@ inputBattleships battleshipSize placedBattleships = if battleshipSize <= maxBatt
 --
 startGame :: [String] -> [Board] -> [[Battleship]] -> IO ()
 startGame names boards battleships = do
-                            putStrLn ("\num" ++ head names ++ "'s turn")
+                            putStrLn ("\n" ++ head names ++ "'s turn")
                             printBoard (last names) (last boards) (last battleships)
                             (newBoard, newBattleshipList) <- blastWithEveryBattleship (last boards, last battleships) (head battleships)
                             if null newBattleshipList then
                                 do
-                                  putStrLn ("\num" ++ head names ++ " won!\num")
+                                  putStrLn ("\n" ++ head names ++ " won!\n")
                                   printBoard (last names) newBoard newBattleshipList
                                   printBoard (head names) (head boards) (head battleships)
                             else
